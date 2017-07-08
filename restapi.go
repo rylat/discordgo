@@ -12,7 +12,7 @@ package discordgo
 
 import (
 	"bytes"
-	"encoding/json"
+	"github.com/json-iterator/go"
 	"errors"
 	"fmt"
 	"image"
@@ -49,7 +49,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
 	var body []byte
 	if data != nil {
-		body, err = json.Marshal(data)
+		body, err = jsoniter.Marshal(data)
 		if err != nil {
 			return
 		}
@@ -146,7 +146,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 
 	case 429: // TOO MANY REQUESTS - Rate limiting
 		rl := TooManyRequests{}
-		err = json.Unmarshal(response, &rl)
+		err = jsoniter.Unmarshal(response, &rl)
 		if err != nil {
 			s.log(LogError, "rate limit unmarshal error, %s", err)
 			return
@@ -168,7 +168,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 }
 
 func unmarshal(data []byte, v interface{}) error {
-	err := json.Unmarshal(data, v)
+	err := jsoniter.Unmarshal(data, v)
 	if err != nil {
 		return ErrJSONUnmarshal
 	}
@@ -1360,7 +1360,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		bodywriter := multipart.NewWriter(body)
 
 		var payload []byte
-		payload, err = json.Marshal(data)
+		payload, err = jsoniter.Marshal(data)
 		if err != nil {
 			return
 		}
