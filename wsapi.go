@@ -13,7 +13,7 @@ package discordgo
 import (
 	"bytes"
 	"compress/zlib"
-	"encoding/json"
+	"github.com/json-iterator/go"
 	"errors"
 	"fmt"
 	"io"
@@ -382,7 +382,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 
 	// Decode the event into an Event struct.
 	var e *Event
-	decoder := json.NewDecoder(reader)
+	decoder := jsoniter.NewDecoder(reader)
 	if err = decoder.Decode(&e); err != nil {
 		s.log(LogError, "error decoding websocket message, %s", err)
 		return
@@ -431,7 +431,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 
 	if e.Operation == 10 {
 		var h helloOp
-		if err = json.Unmarshal(e.RawData, &h); err != nil {
+		if err = jsoniter.Unmarshal(e.RawData, &h); err != nil {
 			s.log(LogError, "error unmarshalling helloOp, %s", err)
 		} else {
 			go s.heartbeat(s.wsConn, s.listening, h.HeartbeatInterval)
@@ -463,7 +463,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		e.Struct = eh.New()
 
 		// Attempt to unmarshal our event.
-		if err = json.Unmarshal(e.RawData, e.Struct); err != nil {
+		if err = jsoniter.Unmarshal(e.RawData, e.Struct); err != nil {
 			s.log(LogError, "error unmarshalling %s event, %s", e.Type, err)
 		}
 
